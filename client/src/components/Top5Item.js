@@ -46,8 +46,8 @@ function Top5Item(props) {
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
-    return (
-        <div
+    let cardElement = 
+    <div
             id={'item-' + (index + 1)}
             className={itemClass}
             onDragStart={handleDragStart}
@@ -64,7 +64,10 @@ function Top5Item(props) {
                 value={"\u270E"}
             />
             {props.text}
-        </div>)
+        </div>;
+    return (
+        cardElement
+    );
 }
 
 export default Top5Item;

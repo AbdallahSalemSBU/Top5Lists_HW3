@@ -17,7 +17,8 @@ export const GlobalStoreActionType = {
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
-    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
+    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    ADD_NEW_LIST: "ADD_NEW_LIST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -96,6 +97,17 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 });
             }
+            //ADD NEW LIST
+            case GlobalStoreActionType.ADD_NEW_LIST: {
+                return setStore({
+                    idNamePairs: payload.idNamePairs,
+                    currentList: payload.top5List,
+                    newListCounter: store.newListCounter + 1,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });
+            }
             default:
                 return store;
         }
@@ -103,6 +115,60 @@ export const useGlobalStore = () => {
     // THESE ARE THE FUNCTIONS THAT WILL UPDATE OUR STORE AND
     // DRIVE THE STATE OF THE APPLICATION. WE'LL CALL THESE IN 
     // RESPONSE TO EVENTS INSIDE OUR COMPONENTS.
+
+    //THIS FUNCTION PROCESSESS ADDING A LIST
+    store.createNewList = function () {
+        let newName = "Untitled " + this.newListCounter;
+        let newList = {
+            name: newName,
+            items: ["?", "?", "?", "?", "?"]
+        };
+        //api.createTop5List(newList);
+        async function asyncNewList(newList) { 
+            let response = await api.createTop5List(newList);
+            if (response.data.success) {
+                async function getListPairs(newList) {
+                    response = await api.getTop5ListPairs();
+                    if (response.data.success) {
+                        let pairsArray = response.data.idNamePairs;
+                        console.log(pairsArray);
+                        storeReducer({
+                            type: GlobalStoreActionType.ADD_NEW_LIST,
+                            payload: {
+                                idNamePairs: pairsArray,
+                                top5List: newList
+                            }
+                        });
+                        async function setNewList(pairsArray) {
+                            let id = pairsArray[pairsArray.length - 1]
+                            let response = await api.getTop5ListById(id);
+                            if (response.data.success) {
+                                let top5List = response.data.top5List;
+
+                                response = await api.updateTop5ListById(top5List._id, top5List);
+                                if (response.data.success) {
+                                    storeReducer({
+                                        type: GlobalStoreActionType.SET_CURRENT_LIST,
+                                        payload: top5List
+                                    });
+                                    store.history.push("/top5list/" + top5List._id);
+                                }
+                            }
+                        }
+                        setNewList(pairsArray);
+                    }
+                }
+                getListPairs(newList);
+            }
+              
+        }
+        asyncNewList(newList);
+        /*async function setCurrList(id) {
+            this.setCurrentList(id);
+        }
+        let currList = this.idNamePairs[this.idNamePairs.length-1];
+        this.setCurrentList(currList._id);*/
+    }
 
     // THIS FUNCTION PROCESSES CHANGING A LIST NAME
     store.changeListName = function (id, newName) {

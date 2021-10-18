@@ -16,6 +16,7 @@ function ListCard(props) {
     const { idNamePair, selected } = props;
 
     function handleLoadList(event) {
+        console.log("in ListCard, handleLoadList called");
         if (!event.target.disabled) {
             let _id = event.target.id;
             if (_id.indexOf('list-card-text-') >= 0)
