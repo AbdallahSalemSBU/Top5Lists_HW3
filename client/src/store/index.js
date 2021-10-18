@@ -121,7 +121,8 @@ export const useGlobalStore = () => {
         let newName = "Untitled " + this.newListCounter;
         let newList = {
             name: newName,
-            items: ["?", "?", "?", "?", "?"]
+            items: ["?", "?", "?", "?", "?"],
+            _id: null
         };
         //api.createTop5List(newList);
         async function asyncNewList(newList) { 
@@ -131,15 +132,18 @@ export const useGlobalStore = () => {
                     response = await api.getTop5ListPairs();
                     if (response.data.success) {
                         let pairsArray = response.data.idNamePairs;
+                        newList._id = pairsArray[pairsArray.length - 1];
                         console.log(pairsArray);
                         storeReducer({
                             type: GlobalStoreActionType.ADD_NEW_LIST,
                             payload: {
                                 idNamePairs: pairsArray,
-                                top5List: newList
+                                top5List: newList,
+                                currentList: newList
                             }
                         });
-                        async function setNewList(pairsArray) {
+                        store.history.push("/top5list/" + newList._id);
+                        /*async function setNewList(pairsArray) {
                             let id = pairsArray[pairsArray.length - 1]
                             let response = await api.getTop5ListById(id);
                             if (response.data.success) {
@@ -155,7 +159,7 @@ export const useGlobalStore = () => {
                                 }
                             }
                         }
-                        setNewList(pairsArray);
+                        setNewList(pairsArray);*/
                     }
                 }
                 getListPairs(newList);
@@ -163,6 +167,7 @@ export const useGlobalStore = () => {
               
         }
         asyncNewList(newList);
+        //window.location.reload(false);
         /*async function setCurrList(id) {
             this.setCurrentList(id);
         }
