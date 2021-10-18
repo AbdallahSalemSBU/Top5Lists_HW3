@@ -19,7 +19,10 @@ function DeleteModal() {
         store.deleteMarkedList();
     }
     function handleCloseModal(event) {
-        store.hideDeleteListModal();
+        //store.hideDeleteListModal();
+        event.stopPropagation();
+        let modal = document.getElementById("delete-modal");
+        modal.classList.remove("is-visible");
     }
     return (
         <div
