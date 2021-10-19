@@ -259,6 +259,38 @@ export const useGlobalStore = () => {
         asyncLoadIdNamePairs();
     }
 
+    store.setListMarkedForDeletion = function (id) {
+        async function asyncSetListMarkedForDeletion(id) {
+            let response = await api.getTop5ListById(id);
+            if (response.data.success) {
+                let top5list = response.data.top5List;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_LIST_MARKED_FOR_DELETION,
+                    payload: top5list
+                });
+            }
+        }
+        asyncSetListMarkedForDeletion(id);
+    }
+
+    store.deleteMarkedList  = function () {
+        let id = store.listMarkedForDeletion._id;
+        async function asyncDeleteMarkedList(id) {
+           let response = await api.deleteTop5ListById(id);
+           if (response.data.success) {
+               response = await api.getTop5ListPairs();
+               if (response.data.success) {
+                   let pairsArray = response.data.idNamePairs;
+                   storeReducer({
+                       type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                       payload: pairsArray
+                   })
+               }
+           } 
+        }
+        asyncDeleteMarkedList(id);
+    }
+
     // THE FOLLOWING 8 FUNCTIONS ARE FOR COORDINATING THE UPDATING
     // OF A LIST, WHICH INCLUDES DEALING WITH THE TRANSACTION STACK. THE
     // FUNCTIONS ARE setCurrentList, addMoveItemTransaction, addUpdateItemTransaction,
@@ -280,20 +312,6 @@ export const useGlobalStore = () => {
             }
         }
         asyncSetCurrentList(id);
-    }
-
-    store.setListMarkedForDeletion = function (id) {
-        async function asyncSetListMarkedForDeletion(id) {
-            let response = await api.getTop5ListById(id);
-            if (response.data.success) {
-                let top5list = response.data.top5List;
-                storeReducer({
-                    type: GlobalStoreActionType.SET_LIST_MARKED_FOR_DELETION,
-                    payload: top5list
-                });
-            }
-        }
-        asyncSetListMarkedForDeletion(id);
     }
 
     store.addMoveItemTransaction = function (start, end) {
