@@ -31,6 +31,7 @@ function ListCard(props) {
         event.stopPropagation();
         let modal = document.getElementById("delete-modal");
         modal.classList.add("is-visible");
+        store.setListMarkedForDeletion(idNamePair._id);
     }
 
     function handleToggleEdit(event) {

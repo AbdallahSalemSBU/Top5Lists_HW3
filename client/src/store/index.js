@@ -20,6 +20,7 @@ export const GlobalStoreActionType = {
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SET_ITEM_NAME_EDIT_ACTIVE: "SET_ITEM_NAME_EDIT_ACTIVE",
+    SET_LIST_MARKED_FOR_DELETION: "SET_LIST_MARKED_FOR_DELETION",
     ADD_NEW_LIST: "ADD_NEW_LIST"
 }
 
@@ -108,6 +109,17 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: true,
                     listMarkedForDeletion: null
+                });
+            }
+            // MARK A LIST FOR DELETION
+            case GlobalStoreActionType.SET_LIST_MARKED_FOR_DELETION: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: payload
                 });
             }
             //ADD NEW LIST
@@ -269,6 +281,21 @@ export const useGlobalStore = () => {
         }
         asyncSetCurrentList(id);
     }
+
+    store.setListMarkedForDeletion = function (id) {
+        async function asyncSetListMarkedForDeletion(id) {
+            let response = await api.getTop5ListById(id);
+            if (response.data.success) {
+                let top5list = response.data.top5List;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_LIST_MARKED_FOR_DELETION,
+                    payload: top5list
+                });
+            }
+        }
+        asyncSetListMarkedForDeletion(id);
+    }
+
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
         tps.addTransaction(transaction);
