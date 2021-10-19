@@ -8,7 +8,34 @@ import { GlobalStoreContext } from '../store'
 */
 function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
+    const [ editActive, setEditActive ] = useState(false);
+    const [ text, setText ] = useState("");
     const [draggedTo, setDraggedTo] = useState(0);
+
+    function handleClick(event) {
+        event.stopPropagation();
+        toggleEdit();
+    }
+    
+    function toggleEdit() {
+        let newActive = !editActive;
+        if (newActive) {
+            store.setIsItemNameEditActive();
+        }
+        setEditActive(newActive);
+    }
+
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            let index = event.target.id.substring(event.target.id.indexOf("-") + 1);
+            store.addUpdateItemTransaction(index, text);
+            toggleEdit();
+        }
+    }
+
+    function handleUpdateText(event) {
+        setText(event.target.value);
+    }
 
     function handleDragStart(event) {
         event.dataTransfer.setData("item", event.target.id);
@@ -47,7 +74,7 @@ function Top5Item(props) {
         itemClass = "top5-item-dragged-to";
     }
     let cardElement = 
-    <div
+        <div
             id={'item-' + (index + 1)}
             className={itemClass}
             onDragStart={handleDragStart}
@@ -55,6 +82,7 @@ function Top5Item(props) {
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onClick={handleClick}
             draggable="true"
         >
             <input
@@ -65,6 +93,18 @@ function Top5Item(props) {
             />
             {props.text}
         </div>;
+
+    if(editActive) {
+        cardElement = 
+            <input
+                id={'item-' + (index + 1)}
+                className="top5-item"
+                type='text'
+                onKeyPress={handleKeyPress}
+                onChange={handleUpdateText}
+                defaultValue={props.text}
+            />;
+    }
     return (
         cardElement
     );
