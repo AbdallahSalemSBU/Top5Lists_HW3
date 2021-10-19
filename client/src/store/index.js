@@ -314,6 +314,14 @@ export const useGlobalStore = () => {
         asyncSetCurrentList(id);
     }
 
+    store.hasTransactionToUndo = function () {
+        return tps.hasTransactionToUndo();
+    }
+
+    store.hasTransactionToRedo = function () {
+        return tps.hasTransactionToRedo();
+    }
+
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
         tps.addTransaction(transaction);
