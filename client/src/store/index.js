@@ -294,8 +294,9 @@ export const useGlobalStore = () => {
         // NOW MAKE IT OFFICIAL
         store.updateCurrentList();
     }
-    store.addUpdateItemTransaction = function (index, name) {
-        let transaction  = new UpdateItem_Transaction(store, index, name);
+    store.addUpdateItemTransaction = function (index, newName) {
+        let oldName = store.currentList.items[index - 1];
+        let transaction  = new UpdateItem_Transaction(store, index, newName, oldName);
         tps.addTransaction(transaction);
     }
     store.updateItem = function (index, name) {
